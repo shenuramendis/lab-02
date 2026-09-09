@@ -41,6 +41,7 @@ class MainActivity : ComponentActivity() {
                     CityListScreen (
                         cities = cityRepository.cities,
                         onAddCity = { cityRepository.addCity(it) },
+                        onDelCity = {cityRepository.delCity(it)},
                         modifier = Modifier.padding(paddingValues = innerPadding)
                     )
                 }
@@ -53,6 +54,7 @@ class MainActivity : ComponentActivity() {
 fun CityListScreen(
     cities: List<String>,
     onAddCity: (String) -> Unit,
+    onDelCity: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var newCityName by remember {mutableStateOf(value = "")}
@@ -78,6 +80,18 @@ fun CityListScreen(
             ) {
                 Text("Add City")
             }
+
+            Button(
+                onClick = {
+                    if (newCityName.isNotBlank())   {
+                        onDelCity(newCityName)
+                        newCityName = ""
+                    }
+                }
+            ) {
+                Text("Delete City")
+            }
+
         }
     }
     LazyColumn(modifier = modifier.fillMaxSize().padding(vertical = 100.dp)){
@@ -112,6 +126,11 @@ class CityRepository {
     fun addCity(city: String) {
         _cities.add(city)
     }
+
+    fun delCity(city: String) {
+        if (_cities.contains(city)){
+        _cities.remove(city)
+    }}
 }
 
 @Composable
