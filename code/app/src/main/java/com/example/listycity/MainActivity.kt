@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -22,6 +23,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -62,7 +64,7 @@ fun CityListScreen(
     modifier: Modifier = Modifier
 ) {
     var newCityName by remember {mutableStateOf(value = "")}
-
+    var selectedIndex by remember { mutableIntStateOf(-1) }
     Column(modifier = Modifier.fillMaxSize()){
         Row(modifier = Modifier.padding(16.dp)){
             OutlinedTextField(
@@ -87,10 +89,7 @@ fun CityListScreen(
 
             Button(
                 onClick = {
-                    if (newCityName.isNotBlank())   {
-                        onDelCity(newCityName)
-                        newCityName = ""
-                    }
+                    if (selectedIndex != -1) onDelCity(cities[selectedIndex])
                 }
             ) {
                 Text("Delete City")
@@ -98,23 +97,20 @@ fun CityListScreen(
 
         }
     }
+
+
     LazyColumn(modifier = modifier.fillMaxSize().padding(vertical = 100.dp)){
-        items(cities) { city ->
-            CityRow(city = city)
+
+        itemsIndexed(cities) { index, city ->
+            val selected = selectedIndex == index
+            Button (
+                onClick = { selectedIndex = if (selected) -1 else index },
+                colors = ButtonDefaults.buttonColors(containerColor = if (selected) Color.Black else Color.Blue),
+                enabled = true,
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 8.dp),
+            ){ Text(text = city, fontSize = 28.sp) }
         }
     }
-}
-
-@Composable
-fun CityRow(city: String) {
-    var buttonSelected by remember {mutableStateOf (value = false)}
-    Button (
-        onClick = { buttonSelected = !buttonSelected },
-        colors = ButtonDefaults.buttonColors(containerColor = if (buttonSelected) Color.Black else Color.Blue),
-        enabled = true,
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 8.dp),
-        ){ Text(text = city, fontSize = 28.sp) }
-
 }
 
 class CityRepository {
